@@ -20,6 +20,8 @@ jobs:
     name: My first job
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    outputs:
+      response: ${{ steps.print.outputs.response }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job          
     steps:
@@ -28,13 +30,16 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Print
+        id: print
         env:
-          MY_VAL: Hello world!
-        run: |
-          echo $MYVAL.
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          MY_VAL: Hello world
+        run: echo "::set-output name=response::${MY_VAL}"
+        
+  my-second-job:
+    needs: my-first-job
+    name: My second job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print
+        id: print
+        run: echo ${{needs.my-first-job.outputs.response}}
